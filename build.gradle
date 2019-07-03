@@ -31,4 +31,8 @@ task clean(type: Delete) {
 ext {
     // Dependency injection
     daggerVersion = '2.22.1'
+
+    // Utility
+    rxJavaVersion = '2.2.7'
+    rxAndroidVersion = '2.1.1'
 }
