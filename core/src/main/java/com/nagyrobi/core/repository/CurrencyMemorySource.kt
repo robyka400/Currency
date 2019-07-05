@@ -18,29 +18,17 @@ import javax.inject.Singleton
 @Singleton
 internal class CurrencyMemorySource @Inject constructor() {
 
-    /**
-     * We are using a behavior processor, since that way new subscribers get the latest value
-     * (Note that in this application doesn't have any impact, since we only have one subscriber)
-     * Shadowing the type enforces the streams immutability (just this class can emit through it)
-     */
-    private val _stream = BehaviorProcessor.create<CurrencyDTO>()
-
-    val stream: Flowable<CurrencyDTO>
-        get() = _stream
+    private var currency: CurrencyDTO? = null
 
     fun getCurrency(currencyType: CurrencyType): Single<CurrencyDTO> = Single.fromCallable {
-        val currency = _stream.value!!
-
-        if (currency.base == currencyType) {
+        if (currency!!.base == currencyType) {
             currency
         } else {
-            currency.convertToNewBase(currencyType)
+            currency!!.convertToNewBase(currencyType)
         }
     }
 
-    internal fun cache(currencyDTO: CurrencyDTO): Single<CurrencyDTO> =
-        Single.fromCallable {
-            _stream.onNext(currencyDTO)
-            currencyDTO
-        }
+    internal fun cache(currencyDTO: CurrencyDTO) {
+        currency = currencyDTO
+    }
 }
