@@ -1,5 +1,7 @@
 package com.nagyrobi.currency.feature.currency
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.nagyrobi.core.model.CurrencyType
@@ -9,17 +11,26 @@ import javax.inject.Inject
 
 class CurrencyViewModel(getCurrencyStreamUseCase: GetCurrencyStreamUseCase) : ViewModel() {
 
+    private val _currencies = MutableLiveData<List<CurrencyItem>>()
+    val currencies: LiveData<List<CurrencyItem>>
+        get() = _currencies
+
+
     private var disposable: Disposable = getCurrencyStreamUseCase(CurrencyType.AUD).subscribe {
         when (it) {
             is Resource.Success -> {
                 // todo handle success
+                val currencies = mutableListOf(CurrencyItem(it.data.base, 1.0))
+                currencies.addAll(it.data.rates.map { (type, value) -> CurrencyItem(type, value) })
+                _currencies.value = currencies
+
                 it.data.rates.forEach { (type, rate) ->
                     println("$type - $rate")
                 }
             }
             is Resource.Error -> {
                 // todo handle error
-                println("Errooor -> ${it.error}" )
+                println("Errooor -> ${it.error}")
             }
         }
     }

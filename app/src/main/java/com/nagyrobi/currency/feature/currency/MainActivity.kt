@@ -3,6 +3,7 @@ package com.nagyrobi.currency.feature.currency
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.nagyrobi.currency.MainActivityBinding
 import com.nagyrobi.currency.R
@@ -19,9 +20,16 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AndroidInjection.inject(this)
-        val binding = DataBindingUtil.setContentView<MainActivityBinding>(this,
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(CurrencyViewModel::class.java)
+
+        val binding = DataBindingUtil.setContentView<MainActivityBinding>(
+            this,
             R.layout.activity_main
         )
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(CurrencyViewModel::class.java)
+        val adapter = CurrencyAdapter()
+        binding.recycler.adapter = adapter
+        viewModel.currencies.observe(this, Observer {
+            adapter.submitList(it)
+        })
     }
 }

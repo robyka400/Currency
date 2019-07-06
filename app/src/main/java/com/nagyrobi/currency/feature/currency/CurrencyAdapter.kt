@@ -6,11 +6,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.nagyrobi.core.model.CurrencyDTO
 import com.nagyrobi.currency.CurrencyItemBinding
 import com.nagyrobi.currency.R
 
-class CurrencyAdapter : ListAdapter<CurrencyDTO, CurrencyAdapter.ViewHolder>(CurrencyDiffUtil()) {
+class CurrencyAdapter : ListAdapter<CurrencyItem, CurrencyAdapter.ViewHolder>(CurrencyDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(
         DataBindingUtil.inflate(
@@ -22,16 +21,15 @@ class CurrencyAdapter : ListAdapter<CurrencyDTO, CurrencyAdapter.ViewHolder>(Cur
 
     class ViewHolder(private val binding: CurrencyItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(currencyDTO: CurrencyDTO) {
-            binding.currency = currencyDTO
+        fun bind(currencyItem: CurrencyItem) {
+            binding.currency = currencyItem
         }
     }
 
-    class CurrencyDiffUtil : DiffUtil.ItemCallback<CurrencyDTO>() {
+    class CurrencyDiffUtil : DiffUtil.ItemCallback<CurrencyItem>() {
+        override fun areItemsTheSame(oldItem: CurrencyItem, newItem: CurrencyItem) = oldItem.symbol == newItem.symbol
 
-        override fun areItemsTheSame(oldItem: CurrencyDTO, newItem: CurrencyDTO) = oldItem.base == newItem.base
-
-        override fun areContentsTheSame(oldItem: CurrencyDTO, newItem: CurrencyDTO) = oldItem == newItem
+        override fun areContentsTheSame(oldItem: CurrencyItem, newItem: CurrencyItem) = oldItem == newItem
 
     }
 }
