@@ -31,7 +31,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.core:core-ktx:1.0.2'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
@@ -39,9 +39,12 @@ dependencies {
     // dependency for Core module
     implementation project(":core")
 
-    // region Google Support libraries
+    // region UI
     implementation "androidx.recyclerview:recyclerview:$supportLibraryVersion"
     implementation 'com.google.android.material:material:1.1.0-alpha07'
+    def glideVersion = "4.9.0"
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
+    kapt "com.github.bumptech.glide:compiler:$glideVersion"
     // endregion
 
     // region Architecture components

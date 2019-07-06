@@ -4,5 +4,5 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="content_padding">8dp</dimen>
-    <dimen name="currency_logo_dim">80dp</dimen>
+    <dimen name="currency_logo_dim">64dp</dimen>
 </resources>

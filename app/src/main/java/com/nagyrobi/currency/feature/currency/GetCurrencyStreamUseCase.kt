@@ -1,7 +1,6 @@
 package com.nagyrobi.currency.feature.currency
 
 import com.nagyrobi.core.model.CurrencyDTO
-import com.nagyrobi.core.model.CurrencyType
 import com.nagyrobi.core.model.Resource
 import com.nagyrobi.core.repository.CurrencyRepository
 import io.reactivex.Flowable
@@ -18,12 +17,12 @@ class GetCurrencyStreamUseCase @Inject constructor(
     private var isRefreshing = false
 
 
-    operator fun invoke(currencyType: CurrencyType): Flowable<Resource<CurrencyDTO>> = currencyRepository.stream
+    operator fun invoke(currencyCode: String): Flowable<Resource<CurrencyDTO>> = currencyRepository.stream
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .doOnSubscribe {
             if (!isRefreshing) {
-                startRefresh(currencyType).subscribe()
+                startRefresh(currencyCode).subscribe()
             }
         }
 
@@ -31,10 +30,10 @@ class GetCurrencyStreamUseCase @Inject constructor(
      *
      * Note - Flowable should be used, but apparently doesn't have a doOnDispose callback
      */
-    private fun startRefresh(currencyType: CurrencyType) = Observable.interval(REFRESH_INTERVAL, TimeUnit.MILLISECONDS)
+    private fun startRefresh(currencyCode: String) = Observable.interval(REFRESH_INTERVAL, TimeUnit.MILLISECONDS)
         .subscribeOn(Schedulers.io())
         .switchMap {
-            currencyRepository.fetchCurrency(currencyType).toObservable()
+            currencyRepository.fetchCurrency(currencyCode).toObservable()
         }
         .observeOn(AndroidSchedulers.mainThread())
         .doOnSubscribe { isRefreshing = true }

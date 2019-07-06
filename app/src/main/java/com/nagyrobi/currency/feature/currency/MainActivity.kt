@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.nagyrobi.currency.MainActivityBinding
 import com.nagyrobi.currency.R
 import dagger.android.AndroidInjection
+import java.util.*
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
@@ -21,7 +22,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         AndroidInjection.inject(this)
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(CurrencyViewModel::class.java)
-
         val binding = DataBindingUtil.setContentView<MainActivityBinding>(
             this,
             R.layout.activity_main
@@ -31,5 +31,6 @@ class MainActivity : AppCompatActivity() {
         viewModel.currencies.observe(this, Observer {
             adapter.submitList(it)
         })
+
     }
 }

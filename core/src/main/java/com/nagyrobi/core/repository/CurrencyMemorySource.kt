@@ -1,11 +1,8 @@
 package com.nagyrobi.core.repository
 
 import com.nagyrobi.core.model.CurrencyDTO
-import com.nagyrobi.core.model.CurrencyType
 import com.nagyrobi.core.util.convertToNewBase
-import io.reactivex.Flowable
 import io.reactivex.Single
-import io.reactivex.processors.BehaviorProcessor
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -20,11 +17,11 @@ internal class CurrencyMemorySource @Inject constructor() {
 
     private var currency: CurrencyDTO? = null
 
-    fun getCurrency(currencyType: CurrencyType): Single<CurrencyDTO> = Single.fromCallable {
-        if (currency!!.base == currencyType) {
+    fun getCurrency(currencyCode: String): Single<CurrencyDTO> = Single.fromCallable {
+        if (currency!!.base == currencyCode) {
             currency
         } else {
-            currency!!.convertToNewBase(currencyType)
+            currency!!.convertToNewBase(currencyCode)
         }
     }
 

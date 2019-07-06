@@ -29,7 +29,7 @@ task clean(type: Delete) {
 
 // Project level version numbers - should contain version numbers for dependencies used in multiple packages
 ext {
-    supportLibraryVersion = '1.0.0'
+    supportLibraryVersion = '1.0.0-beta01'
 
     // Dependency injection
     daggerVersion = '2.23.2'

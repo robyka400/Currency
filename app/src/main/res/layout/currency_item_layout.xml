@@ -3,15 +3,18 @@
     <data class=".CurrencyItemBinding">
         <variable name="currency" type="com.nagyrobi.currency.feature.currency.CurrencyItem"/>
     </data>
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                       android:layout_width="match_parent"
-                                                       android:layout_height="wrap_content">
+    <androidx.constraintlayout.widget.ConstraintLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:background="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
         <ImageView
                 android:id="@+id/logo"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
+                app:countryCode="@{currency.country}"
                 tools:src="@mipmap/ic_launcher"
                 android:layout_width="@dimen/currency_logo_dim"
                 android:layout_height="@dimen/currency_logo_dim"/>

@@ -1,7 +1,6 @@
 package com.nagyrobi.core.repository
 
 import com.nagyrobi.core.model.CurrencyDTO
-import com.nagyrobi.core.model.CurrencyType
 import com.nagyrobi.core.model.Resource
 import com.nagyrobi.core.networking.CurrencyService
 import io.reactivex.Flowable
@@ -31,16 +30,16 @@ internal class CurrencyRepositoryImpl @Inject constructor(
      * If there is no cache fetch the currency
      *
      */
-    override fun getCurrency(currencyType: CurrencyType): Single<Resource<CurrencyDTO>> =
-        currencyMemorySource.getCurrency(currencyType)
+    override fun getCurrency(currencyCode: String): Single<Resource<CurrencyDTO>> =
+        currencyMemorySource.getCurrency(currencyCode)
             .map { Resource.Success(it) as Resource<CurrencyDTO> }
-            .onErrorResumeNext(fetchCurrency(currencyType))
+            .onErrorResumeNext(fetchCurrency(currencyCode))
 
     /**
      * If the request is successful we cache the new currency
      */
-    override fun fetchCurrency(currencyType: CurrencyType): Single<Resource<CurrencyDTO>> =
-        currencyService.getCurrency(currencyType)
+    override fun fetchCurrency(currencyCode: String): Single<Resource<CurrencyDTO>> =
+        currencyService.getCurrency(currencyCode)
             .map { Resource.Success(it) as Resource<CurrencyDTO> }
             .onErrorResumeNext { Single.just(Resource.Error(it)) }
             .doOnSuccess {
