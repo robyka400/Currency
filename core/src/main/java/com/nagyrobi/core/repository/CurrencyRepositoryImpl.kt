@@ -43,5 +43,11 @@ internal class CurrencyRepositoryImpl @Inject constructor(
         currencyService.getCurrency(currencyType)
             .map { Resource.Success(it) as Resource<CurrencyDTO> }
             .onErrorResumeNext { Single.just(Resource.Error(it)) }
+            .doOnSuccess {
+                _stream.onNext(it)
+                if (it is Resource.Success) {
+                    currencyMemorySource.cache(it.data)
+                }
+            }
 
 }

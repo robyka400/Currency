@@ -8,7 +8,7 @@ import com.squareup.moshi.Json
  */
 data class CurrencyDTO(
     @Json(name = "base") val base: CurrencyType,
-    @Json(name = "rates") val rates: List<Pair<CurrencyType, Double>>
+    @Json(name = "rates") val rates: Map<CurrencyType, Double>
 )
 
 /**
