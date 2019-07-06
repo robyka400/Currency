@@ -13,4 +13,6 @@ data class CurrencyItem(
     val country: String?
         get() = currency.getCountryCode()
 
+    val id: Long
+        get() = currency.numericCode.toLong()
 }

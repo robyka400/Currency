@@ -20,7 +20,7 @@ class CurrencyViewModel(getCurrencyStreamUseCase: GetCurrencyStreamUseCase) : Vi
             is Resource.Success -> {
                 // todo handle success
                 val currencies = mutableListOf(CurrencyItem(it.data.base, 1.0))
-                currencies.addAll(it.data.rates.map { (type, value) -> CurrencyItem(type, value) })
+                currencies.addAll(it.data.rates.map { (currency, value) -> CurrencyItem(currency, value) })
                 _currencies.value = currencies
             }
             is Resource.Error -> {

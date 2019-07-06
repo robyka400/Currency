@@ -3,6 +3,7 @@ package com.nagyrobi.currency.util.bindingadapter
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 
 @BindingAdapter("countryCode", requireAll = true)
@@ -11,6 +12,7 @@ fun ImageView.loadCountryImage(countryCode: String?) {
         Glide.with(context)
             .load(getFlagUrl(country))
             .apply(RequestOptions.circleCropTransform())
+            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
             .into(this)
     }
 }

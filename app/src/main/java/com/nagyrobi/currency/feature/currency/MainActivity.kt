@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.nagyrobi.currency.MainActivityBinding
 import com.nagyrobi.currency.R
 import dagger.android.AndroidInjection
