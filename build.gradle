@@ -30,7 +30,7 @@ task clean(type: Delete) {
 // Project level version numbers - should contain version numbers for dependencies used in multiple packages
 ext {
     // Dependency injection
-    daggerVersion = '2.22.1'
+    daggerVersion = '2.23.2'
 
     // Utility
     rxJavaVersion = '2.2.7'

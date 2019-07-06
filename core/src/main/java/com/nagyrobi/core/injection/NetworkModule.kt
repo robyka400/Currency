@@ -5,7 +5,9 @@ import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
+import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
@@ -19,7 +21,9 @@ class NetworkModule {
     fun provideRetrofit(client: OkHttpClient, moshi: Moshi) =
         Retrofit.Builder()
             .client(client)
+            .baseUrl(BASE_URL)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
 
     @Provides
@@ -30,4 +34,9 @@ class NetworkModule {
     @Singleton
     internal fun provideOkHttpClient() = OkHttpClient.Builder()
         .build()
+
+
+    companion object {
+        const val BASE_URL = "https://revolut.duckdns.org"
+    }
 }

@@ -8,10 +8,6 @@ import retrofit2.http.Query
 
 internal interface CurrencyService {
 
-    @GET(REVOLUT_URL)
+    @GET("/latest")
     fun getCurrency(@Query("base") base: CurrencyType): Single<CurrencyDTO>
-
-    companion object {
-        const val REVOLUT_URL = "https://revolut.duckdns.org/latest"
-    }
 }

@@ -1,15 +1,13 @@
 package com.nagyrobi.currency.injection
 
-import android.app.Application
-import android.content.Context
+import com.nagyrobi.currency.CurrencyApplication
 import dagger.Module
 import dagger.Provides
-import javax.inject.Singleton
 
 @Module
 class AppModule {
 
     @Provides
-    @Singleton
-    fun provideApplicationContext(application: Application): Context = application
+    @App
+    fun provideInjection(currencyApplication: CurrencyApplication) = currencyApplication
 }

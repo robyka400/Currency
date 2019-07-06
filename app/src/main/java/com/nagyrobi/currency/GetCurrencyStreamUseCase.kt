@@ -12,19 +12,18 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class GetCurrencyStreamUseCase @Inject constructor(
-    private val currencyRepository: CurrencyRepository,
-    var currencyType: CurrencyType
+    private val currencyRepository: CurrencyRepository
 ) {
 
     private var isRefreshing = false
 
 
-    operator fun invoke(): Flowable<Resource<CurrencyDTO>> = currencyRepository.stream
+    operator fun invoke(currencyType: CurrencyType): Flowable<Resource<CurrencyDTO>> = currencyRepository.stream
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .doOnSubscribe {
             if (!isRefreshing) {
-                startRefresh().subscribe()
+                startRefresh(currencyType).subscribe()
             }
         }
 
@@ -32,7 +31,7 @@ class GetCurrencyStreamUseCase @Inject constructor(
      *
      * Note - Flowable should be used, but apparently doesn't have a doOnDispose callback
      */
-    private fun startRefresh() = Observable.interval(REFRESH_INTERVAL, TimeUnit.MILLISECONDS)
+    private fun startRefresh(currencyType: CurrencyType) = Observable.interval(REFRESH_INTERVAL, TimeUnit.MILLISECONDS)
         .subscribeOn(Schedulers.io())
         .switchMap {
             currencyRepository.fetchCurrency(currencyType).toObservable()

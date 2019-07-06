@@ -7,10 +7,11 @@ import com.nagyrobi.core.networking.CurrencyService
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.processors.BehaviorProcessor
+import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class CurrencyRepositoryImpl(
+internal class CurrencyRepositoryImpl @Inject constructor(
     private val currencyMemorySource: CurrencyMemorySource,
     private val currencyService: CurrencyService
 ) : CurrencyRepository {

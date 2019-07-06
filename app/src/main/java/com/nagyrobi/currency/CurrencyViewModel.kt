@@ -2,13 +2,14 @@ package com.nagyrobi.currency
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.nagyrobi.core.model.CurrencyType
 import com.nagyrobi.core.model.Resource
 import io.reactivex.disposables.Disposable
 import javax.inject.Inject
 
-class CurrencyViewModel(private val getCurrencyStreamUseCase: GetCurrencyStreamUseCase) : ViewModel() {
+class CurrencyViewModel(getCurrencyStreamUseCase: GetCurrencyStreamUseCase) : ViewModel() {
 
-    private var disposable: Disposable = getCurrencyStreamUseCase().subscribe {
+    private var disposable: Disposable = getCurrencyStreamUseCase(CurrencyType.AUD).subscribe {
         when (it) {
             is Resource.Success -> {
                 // todo handle success
@@ -18,6 +19,7 @@ class CurrencyViewModel(private val getCurrencyStreamUseCase: GetCurrencyStreamU
             }
             is Resource.Error -> {
                 // todo handle error
+                println("Errooor -> ${it.error}" )
             }
         }
     }
@@ -26,7 +28,7 @@ class CurrencyViewModel(private val getCurrencyStreamUseCase: GetCurrencyStreamU
         disposable.dispose()
     }
 
-    class ViewModelFactory @Inject constructor(private val getCurrencyStreamUseCase: GetCurrencyStreamUseCase) :
+    class Factory @Inject constructor(private val getCurrencyStreamUseCase: GetCurrencyStreamUseCase) :
         ViewModelProvider.Factory {
 
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
