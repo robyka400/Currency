@@ -1,6 +1,6 @@
 package com.nagyrobi.currency.injection
 
-import com.nagyrobi.currency.MainActivity
+import com.nagyrobi.currency.feature.currency.MainActivity
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 

@@ -5,7 +5,7 @@ buildscript {
     repositories {
         google()
         jcenter()
-        
+
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.4.1'
@@ -19,7 +19,7 @@ allprojects {
     repositories {
         google()
         jcenter()
-        
+
     }
 }
 
@@ -29,6 +29,8 @@ task clean(type: Delete) {
 
 // Project level version numbers - should contain version numbers for dependencies used in multiple packages
 ext {
+    supportLibraryVersion = '1.0.0'
+
     // Dependency injection
     daggerVersion = '2.23.2'
 

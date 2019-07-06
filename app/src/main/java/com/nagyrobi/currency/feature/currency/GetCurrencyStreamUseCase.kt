@@ -1,4 +1,4 @@
-package com.nagyrobi.currency
+package com.nagyrobi.currency.feature.currency
 
 import com.nagyrobi.core.model.CurrencyDTO
 import com.nagyrobi.core.model.CurrencyType

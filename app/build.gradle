@@ -23,6 +23,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
         sourceCompatibility JavaVersion.VERSION_1_8
     }
+
+    dataBinding {
+        enabled = true
+    }
 }
 
 dependencies {
@@ -34,6 +38,11 @@ dependencies {
 
     // dependency for Core module
     implementation project(":core")
+
+    // region Google Support libraries
+    implementation "androidx.recyclerview:recyclerview:$supportLibraryVersion"
+    implementation 'com.google.android.material:material:1.1.0-alpha07'
+    // endregion
 
     // region Architecture components
     def architectureVersion = '2.0.0'

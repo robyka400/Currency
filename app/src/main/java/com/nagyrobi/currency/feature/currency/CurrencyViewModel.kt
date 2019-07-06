@@ -1,4 +1,4 @@
-package com.nagyrobi.currency
+package com.nagyrobi.currency.feature.currency
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
