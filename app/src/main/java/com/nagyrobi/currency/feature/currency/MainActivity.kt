@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.nagyrobi.currency.MainActivityBinding
@@ -19,7 +20,6 @@ class MainActivity : AppCompatActivity() {
     lateinit var viewModelFactory: CurrencyViewModel.Factory
 
     lateinit var viewModel: CurrencyViewModel
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AndroidInjection.inject(this)
@@ -28,8 +28,11 @@ class MainActivity : AppCompatActivity() {
             this,
             R.layout.activity_main
         )
-        val adapter = CurrencyAdapter()
+        val adapter = CurrencyAdapter {
+            viewModel.selectedCurrency.value = it.symbol
+        }
         binding.recycler.adapter = adapter
+
         viewModel.currencies.observe(this, Observer {
             adapter.submitList(it)
             // After the first update, the size of the recyclerview is not really changing
@@ -38,9 +41,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-    }
-
-    companion object {
-        const val MAX_VIEWS_RECYCLED = 40
+        viewModel.setCurrentLocale(resources.configuration.locales[0])
     }
 }
