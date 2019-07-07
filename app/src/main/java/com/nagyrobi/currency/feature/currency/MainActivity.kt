@@ -20,8 +20,6 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var viewModel: CurrencyViewModel
 
-    private var isUpdateDisabled = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AndroidInjection.inject(this)
@@ -32,17 +30,11 @@ class MainActivity : AppCompatActivity() {
         )
         val adapter = CurrencyAdapter()
         binding.recycler.adapter = adapter
-        binding.recycler.recycledViewPool.setMaxRecycledViews(adapter.getItemViewType(0), MAX_VIEWS_RECYCLED)
-
-        binding.recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                isUpdateDisabled =
-                    newState == RecyclerView.SCROLL_STATE_SETTLING || newState == RecyclerView.SCROLL_STATE_DRAGGING
-            }
-        })
         viewModel.currencies.observe(this, Observer {
-            if (!isUpdateDisabled) {
-                adapter.submitList(it)
+            adapter.submitList(it)
+            // After the first update, the size of the recyclerview is not really changing
+            if (!binding.recycler.hasFixedSize()) {
+                binding.recycler.setHasFixedSize(true)
             }
         })
 
