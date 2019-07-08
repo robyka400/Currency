@@ -57,11 +57,14 @@ class CurrencyAdapter(
             binding.rate.setOnFocusChangeListener { _, isFocused ->
                 if (isFocused) {
                     onItemClickedCallback(currencyItem)
+                    binding.rate.addTextChangedListener(textChangedListener)
                 }
             }
             if (shouldBeFocused) {
                 binding.rate.requestFocus()
                 binding.rate.addTextChangedListener(textChangedListener)
+            } else {
+                binding.rate.removeTextChangedListener(textChangedListener)
             }
         }
 
