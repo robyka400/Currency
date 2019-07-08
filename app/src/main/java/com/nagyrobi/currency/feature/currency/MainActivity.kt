@@ -28,9 +28,13 @@ class MainActivity : AppCompatActivity() {
             this,
             R.layout.activity_main
         )
-        val adapter = CurrencyAdapter {
-            viewModel.selectedCurrency.value = it.symbol
-        }
+        val adapter = CurrencyAdapter({
+            viewModel.selectedCurrency.value = it
+        }, {
+            viewModel.setRate(it)
+            println("rateInput - $it")
+        })
+
         binding.recycler.adapter = adapter
 
         viewModel.currencies.observe(this, Observer {

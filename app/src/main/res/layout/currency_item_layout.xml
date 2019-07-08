@@ -55,7 +55,7 @@
                     android:id="@+id/rate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{currency.rate}"
+                    android:inputType="numberDecimal"
                     android:textAppearance="@style/TextAppearance.AppCompat.Headline"
                     tools:text="2876,13"
             />

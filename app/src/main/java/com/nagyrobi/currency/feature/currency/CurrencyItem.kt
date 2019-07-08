@@ -4,10 +4,11 @@ import java.util.*
 
 data class CurrencyItem(
     val symbol: String,
-    val rate: Double,
+    var rate: Double,
     val country: String?
 ) {
     private val currency = Currency.getInstance(symbol)
     val name: String
         get() = currency.displayName
+
 }

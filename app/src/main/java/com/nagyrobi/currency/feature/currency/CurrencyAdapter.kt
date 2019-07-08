@@ -1,6 +1,7 @@
 package com.nagyrobi.currency.feature.currency
 
 import android.os.Bundle
+import android.text.Editable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -9,19 +10,25 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.nagyrobi.currency.CurrencyItemBinding
 import com.nagyrobi.currency.R
-import com.nagyrobi.currency.util.bindingadapter.setNumber
+import com.nagyrobi.currency.util.SimpleTextWatcher
+import com.nagyrobi.currency.util.bindingadapter.getDouble
+import com.nagyrobi.currency.util.bindingadapter.setDouble
 
-class CurrencyAdapter(private val onItemClickedCallback: (CurrencyItem) -> Unit) :
+class CurrencyAdapter(
+    private val onItemClickedCallback: (CurrencyItem) -> Unit,
+    private val onRateChangedCallback: (CurrencyItem) -> Unit
+) :
     ListAdapter<CurrencyItem, CurrencyAdapter.ViewHolder>(CurrencyDiffUtil()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(
         DataBindingUtil.inflate(
             LayoutInflater.from(parent.context), R.layout.currency_item_layout, parent, false
         ),
-        onItemClickedCallback
+        onItemClickedCallback,
+        onRateChangedCallback
     )
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(getItem(position))
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(getItem(position), position == 0)
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) =
         (payloads.getOrNull(0) as? Double)?.let { newRate ->
@@ -31,16 +38,37 @@ class CurrencyAdapter(private val onItemClickedCallback: (CurrencyItem) -> Unit)
 
     class ViewHolder(
         private val binding: CurrencyItemBinding,
-        private val onItemClickedCallback: (CurrencyItem) -> Unit
+        private val onItemClickedCallback: (CurrencyItem) -> Unit,
+        private val onRateChangedCallback: (CurrencyItem) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(currencyItem: CurrencyItem) {
+        private val textChangedListener = object : SimpleTextWatcher() {
+            override fun afterTextChanged(p0: Editable?) {
+                onRateChangedCallback(binding.currency?.copy(rate = binding.rate.getDouble())!!)
+            }
+        }
+
+        fun bind(currencyItem: CurrencyItem, shouldBeFocused: Boolean) {
             binding.currency = currencyItem
-            binding.root.setOnClickListener { onItemClickedCallback(currencyItem) }
+
+            if (!shouldBeFocused || binding.rate.text.isNullOrEmpty()) {
+                binding.rate.setDouble(currencyItem.rate)
+            }
+            binding.rate.setOnFocusChangeListener { _, isFocused ->
+                if (isFocused) {
+                    onItemClickedCallback(currencyItem)
+                }
+            }
+            if (shouldBeFocused) {
+                binding.rate.requestFocus()
+                binding.rate.addTextChangedListener(textChangedListener)
+            }
         }
 
         fun updateRate(rate: Double) {
-            binding.rate.setNumber(rate)
+            if (!binding.rate.hasFocus()) {
+                binding.rate.setDouble(rate)
+            }
         }
     }
 

@@ -26,7 +26,8 @@ class CurrencyViewModel(currencyDataUseCase: CurrencyDataUseCase) : ViewModel() 
     val currencies: LiveData<List<CurrencyItem>>
         get() = _currencies
 
-    val selectedCurrency = MutableLiveData<String>()
+    val selectedCurrency = MutableLiveData<CurrencyItem>()
+    private val rateInput = MutableLiveData<Double>().apply { value = DEFAULT_RATE_VALUE }
 
     private val streamDisposable = currencyDataUseCase.getStream().subscribe {
         when (it) {
@@ -35,7 +36,7 @@ class CurrencyViewModel(currencyDataUseCase: CurrencyDataUseCase) : ViewModel() 
                     mapCurrencies(it.data)
                 } else {
                     updateCurrencies(it.data)
-                }
+                }.updateWithInputRate()
             }
             is Resource.Error -> {
                 // todo handle error
@@ -45,13 +46,20 @@ class CurrencyViewModel(currencyDataUseCase: CurrencyDataUseCase) : ViewModel() 
     }
     private var refreshDisposable: Disposable? = null
 
-    private val observer = Observer<String> { currencyCode ->
+    private val observer = Observer<CurrencyItem> {
         refreshDisposable?.dispose()
-        refreshDisposable = currencyDataUseCase.startRefresh(currencyCode).subscribe()
+        refreshDisposable =
+            currencyDataUseCase.startRefresh(it.symbol).subscribe()
+        rateInput.value = it.rate
     }
 
     init {
         selectedCurrency.observeForever(observer)
+        rateInput.observeForever {
+            _currencies.value?.let {
+                //                _currencies.value = it.updateWithInputRate()
+            }
+        }
     }
 
     override fun onCleared() {
@@ -74,11 +82,25 @@ class CurrencyViewModel(currencyDataUseCase: CurrencyDataUseCase) : ViewModel() 
     }
 
     fun setCurrentLocale(locale: Locale) {
-        selectedCurrency.value = NumberFormat.getCurrencyInstance(locale).currency?.currencyCode
+        selectedCurrency.value =
+            NumberFormat.getCurrencyInstance(locale).currency?.currencyCode?.let { currencyCode ->
+                CurrencyItem(
+                    currencyCode,
+                    DEFAULT_RATE_VALUE,
+                    countryCodes[currencyCode]
+                )
+            }
+
     }
 
     private fun mapCurrencies(newCurrencies: CurrencyDTO): List<CurrencyItem> {
-        val currencies = mutableListOf(CurrencyItem(newCurrencies.base, 1.0, countryCodes[newCurrencies.base]))
+        val currencies = mutableListOf(
+            CurrencyItem(
+                newCurrencies.base,
+                DEFAULT_RATE_VALUE,
+                countryCodes[newCurrencies.base]
+            )
+        )
         currencies.addAll(newCurrencies.rates.map { (currency, value) ->
             CurrencyItem(
                 currency,
@@ -90,9 +112,16 @@ class CurrencyViewModel(currencyDataUseCase: CurrencyDataUseCase) : ViewModel() 
         return currencies
     }
 
+    private fun List<CurrencyItem>.updateWithInputRate() =
+        map { item -> item.copy(rate = item.rate * (rateInput.value ?: DEFAULT_RATE_VALUE)) }
+
     private fun updateCurrencies(newCurrencies: CurrencyDTO): List<CurrencyItem> {
         val currentCurrencies = _currencies.value ?: return emptyList()
-        val currencies = mutableListOf(currentCurrencies.first { it.symbol == newCurrencies.base }.copy(rate = 1.0))
+        val currencies = mutableListOf(
+            currentCurrencies.first { it.symbol == newCurrencies.base }.copy(
+                rate = DEFAULT_RATE_VALUE
+            )
+        )
         currencies.addAll(currentCurrencies.filterNot { it.symbol == newCurrencies.base }.map {
             it.copy(rate = newCurrencies.rates[it.symbol] ?: 0.0)
         })
@@ -100,8 +129,15 @@ class CurrencyViewModel(currencyDataUseCase: CurrencyDataUseCase) : ViewModel() 
         return currencies
     }
 
+    fun setRate(currencyItem: CurrencyItem) {
+        if (currencyItem.symbol == selectedCurrency.value?.symbol) {
+            rateInput.value = currencyItem.rate
+        }
+    }
+
     companion object {
         private const val EURO_CURRENCY = "EUR"
         private const val EURO_COUNTRY = "EU"
+        private const val DEFAULT_RATE_VALUE = 1.0
     }
 }
