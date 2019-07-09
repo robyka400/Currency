@@ -1,10 +1,7 @@
 package com.nagyrobi.currency.feature.currency
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.nagyrobi.core.model.CurrencyDTO
 import com.nagyrobi.core.model.Resource
 import io.reactivex.disposables.CompositeDisposable
@@ -23,8 +20,7 @@ class CurrencyViewModel(currencyDataUseCase: CurrencyDataUseCase) : ViewModel() 
     )
 
     private val _currencies = MutableLiveData<List<CurrencyItem>>()
-    val currencies: LiveData<List<CurrencyItem>>
-        get() = _currencies
+    val currencies = MediatorLiveData<List<CurrencyItem>>()
 
     val selectedCurrency = MutableLiveData<CurrencyItem>()
     private val rateInput = MutableLiveData<Double>().apply { value = DEFAULT_RATE_VALUE }
@@ -36,7 +32,7 @@ class CurrencyViewModel(currencyDataUseCase: CurrencyDataUseCase) : ViewModel() 
                     mapCurrencies(it.data)
                 } else {
                     updateCurrencies(it.data)
-                }.updateWithInputRate()
+                }
             }
             is Resource.Error -> {
                 // todo handle error
@@ -51,13 +47,17 @@ class CurrencyViewModel(currencyDataUseCase: CurrencyDataUseCase) : ViewModel() 
         refreshDisposable =
             currencyDataUseCase.startRefresh(it.symbol).subscribe()
         rateInput.value = it.rate
+        moveSelectedToTop()
     }
 
     init {
         selectedCurrency.observeForever(observer)
-        rateInput.observeForever {
+        currencies.addSource(_currencies) {
+            currencies.value = it.updateWithInputRate()
+        }
+        currencies.addSource(rateInput) {
             _currencies.value?.let {
-                //                _currencies.value = it.updateWithInputRate()
+                currencies.value = it.updateWithInputRate()
             }
         }
     }
@@ -113,7 +113,22 @@ class CurrencyViewModel(currencyDataUseCase: CurrencyDataUseCase) : ViewModel() 
     }
 
     private fun List<CurrencyItem>.updateWithInputRate() =
-        map { item -> item.copy(rate = item.rate * (rateInput.value ?: DEFAULT_RATE_VALUE)) }
+        map { item ->
+            if (selectedCurrency.value?.symbol == item.symbol) {
+                item
+            } else {
+                item.copy(rate = item.rate * (rateInput.value ?: DEFAULT_RATE_VALUE))
+            }
+        }
+
+    private fun moveSelectedToTop() {
+        val currentCurrencies = _currencies.value ?: return
+        val newCurrencies =
+            mutableListOf(currentCurrencies.first { it.symbol == selectedCurrency.value?.symbol })
+
+        newCurrencies.addAll(currentCurrencies.filter { it.symbol != selectedCurrency.value?.symbol })
+        _currencies.value = newCurrencies
+    }
 
     private fun updateCurrencies(newCurrencies: CurrencyDTO): List<CurrencyItem> {
         val currentCurrencies = _currencies.value ?: return emptyList()

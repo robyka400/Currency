@@ -32,7 +32,6 @@ class MainActivity : AppCompatActivity() {
             viewModel.selectedCurrency.value = it
         }, {
             viewModel.setRate(it)
-            println("rateInput - $it")
         })
 
         binding.recycler.adapter = adapter
