@@ -46,7 +46,7 @@ class CurrencyAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) =
-            holder.bind(getItem(position), primaryInputBinding?.rate?.getDouble())
+            holder.bind(getItem(position), primaryInputBinding?.rate?.getDouble() != getItem(position).rate)
 
 
     class ViewHolder(
@@ -54,8 +54,8 @@ class CurrencyAdapter(
             private val onItemClickedCallback: (CurrencyItemBinding) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(currencyItem: CurrencyItem, rate: Double? = Double.NaN) {
-            if (rate != binding.rate.getDouble()) {
+        fun bind(currencyItem: CurrencyItem, shouldRebind: Boolean) {
+            if (shouldRebind) {
                 binding.currency = currencyItem
                 binding.rate.setOnFocusChangeListener { _, isFocused ->
                     if (isFocused) {

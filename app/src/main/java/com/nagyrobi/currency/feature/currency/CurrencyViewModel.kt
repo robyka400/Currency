@@ -46,8 +46,8 @@ class CurrencyViewModel(currencyDataUseCase: CurrencyDataUseCase) : ViewModel() 
         refreshDisposable?.dispose()
         refreshDisposable =
                 currencyDataUseCase.startRefresh(it.symbol).subscribe()
-        rateInput.value = it.rate
         moveSelectedToTop()
+        rateInput.value = it.rate
     }
 
     init {
