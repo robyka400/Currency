@@ -30,14 +30,15 @@ class MainActivity : AppCompatActivity() {
         )
         val adapter = CurrencyAdapter({
             viewModel.selectedCurrency.value = it
-            println("nrobi selected $it")
         }, {
             viewModel.setRate(it)
-            println("nrobi inputRate $it")
         })
 
         binding.recycler.adapter = adapter
 
+        viewModel.stopLoading.observe(this, Observer {
+            binding.flipper.showNext()
+        })
         viewModel.currencies.observe(this, Observer {
             adapter.submitList(it)
             // After the first update, the size of the recyclerview is not really changing
