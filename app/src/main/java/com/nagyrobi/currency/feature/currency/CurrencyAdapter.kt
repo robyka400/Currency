@@ -12,65 +12,56 @@ import com.nagyrobi.currency.CurrencyItemBinding
 import com.nagyrobi.currency.R
 import com.nagyrobi.currency.util.SimpleTextWatcher
 import com.nagyrobi.currency.util.bindingadapter.getDouble
-import com.nagyrobi.currency.util.bindingadapter.setDouble
 
 class CurrencyAdapter(
-    private val onItemClickedCallback: (CurrencyItem) -> Unit,
-    private val onRateChangedCallback: (CurrencyItem) -> Unit
-) :
-    ListAdapter<CurrencyItem, CurrencyAdapter.ViewHolder>(CurrencyDiffUtil()) {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(
-        DataBindingUtil.inflate(
-            LayoutInflater.from(parent.context), R.layout.currency_item_layout, parent, false
-        ),
-        onItemClickedCallback,
-        onRateChangedCallback
-    )
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(getItem(position), position == 0)
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) =
-        (payloads.getOrNull(0) as? Double)?.let { newRate ->
-            holder.updateRate(newRate)
-
-        } ?: super.onBindViewHolder(holder, position, payloads)
-
-    class ViewHolder(
-        private val binding: CurrencyItemBinding,
         private val onItemClickedCallback: (CurrencyItem) -> Unit,
         private val onRateChangedCallback: (CurrencyItem) -> Unit
+) :
+        ListAdapter<CurrencyItem, CurrencyAdapter.ViewHolder>(CurrencyDiffUtil()) {
+
+    private var primaryInputBinding: CurrencyItemBinding? = null
+        set(value) {
+            field?.rate?.removeTextChangedListener(textChangedListener)
+            field = value
+            field?.rate?.addTextChangedListener(textChangedListener)
+        }
+    private val textChangedListener = object : SimpleTextWatcher() {
+
+        override fun afterTextChanged(p0: Editable?) {
+            onRateChangedCallback(
+                    primaryInputBinding?.currency?.copy(
+                            rate = primaryInputBinding?.rate?.getDouble() ?: Double.NaN
+                    )!!
+            )
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(
+            DataBindingUtil.inflate(
+                    LayoutInflater.from(parent.context), R.layout.currency_item_layout, parent, false
+            )
+    ) {
+        primaryInputBinding = it
+        onItemClickedCallback(it.currency!!)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) =
+            holder.bind(getItem(position), primaryInputBinding?.rate?.getDouble())
+
+
+    class ViewHolder(
+            private val binding: CurrencyItemBinding,
+            private val onItemClickedCallback: (CurrencyItemBinding) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        private val textChangedListener = object : SimpleTextWatcher() {
-            override fun afterTextChanged(p0: Editable?) {
-                onRateChangedCallback(binding.currency?.copy(rate = binding.rate.getDouble())!!)
-            }
-        }
-
-        fun bind(currencyItem: CurrencyItem, shouldBeFocused: Boolean) {
-            binding.currency = currencyItem
-
-            if (!shouldBeFocused || binding.rate.text.isNullOrEmpty()) {
-                binding.rate.setDouble(currencyItem.rate)
-            }
-            binding.rate.setOnFocusChangeListener { _, isFocused ->
-                if (isFocused) {
-                    onItemClickedCallback(currencyItem)
-                    binding.rate.addTextChangedListener(textChangedListener)
+        fun bind(currencyItem: CurrencyItem, rate: Double? = Double.NaN) {
+            if (rate != binding.rate.getDouble()) {
+                binding.currency = currencyItem
+                binding.rate.setOnFocusChangeListener { _, isFocused ->
+                    if (isFocused) {
+                        onItemClickedCallback(binding)
+                    }
                 }
-            }
-            if (shouldBeFocused) {
-                binding.rate.requestFocus()
-                binding.rate.addTextChangedListener(textChangedListener)
-            } else {
-                binding.rate.removeTextChangedListener(textChangedListener)
-            }
-        }
-
-        fun updateRate(rate: Double) {
-            if (!binding.rate.hasFocus()) {
-                binding.rate.setDouble(rate)
             }
         }
     }
@@ -81,7 +72,7 @@ class CurrencyAdapter(
         override fun areContentsTheSame(oldItem: CurrencyItem, newItem: CurrencyItem) = oldItem == newItem
 
         override fun getChangePayload(oldItem: CurrencyItem, newItem: CurrencyItem): Bundle? =
-            if (!areItemsTheSame(oldItem, newItem)) null else Bundle().apply { putDouble(NEW_RATE, newItem.rate) }
+                if (!areItemsTheSame(oldItem, newItem)) null else Bundle().apply { putDouble(NEW_RATE, newItem.rate) }
 
         companion object {
             const val NEW_RATE = "value"

@@ -25,13 +25,15 @@ class MainActivity : AppCompatActivity() {
         AndroidInjection.inject(this)
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(CurrencyViewModel::class.java)
         val binding = DataBindingUtil.setContentView<MainActivityBinding>(
-            this,
-            R.layout.activity_main
+                this,
+                R.layout.activity_main
         )
         val adapter = CurrencyAdapter({
             viewModel.selectedCurrency.value = it
+            println("nrobi selected $it")
         }, {
             viewModel.setRate(it)
+            println("nrobi inputRate $it")
         })
 
         binding.recycler.adapter = adapter

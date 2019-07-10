@@ -1,64 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
     <data class=".CurrencyItemBinding">
-        <variable name="currency" type="com.nagyrobi.currency.feature.currency.CurrencyItem"/>
+
+        <variable
+            name="currency"
+            type="com.nagyrobi.currency.feature.currency.CurrencyItem" />
     </data>
-    <androidx.constraintlayout.widget.ConstraintLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:background="@android:color/white"
-            android:foreground="?attr/selectableItemBackground"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:foreground="?attr/selectableItemBackground">
 
         <ImageView
-                android:id="@+id/logo"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginStart="@dimen/activity_horizontal_margin"
-                app:countryCode="@{currency.country}"
-                tools:src="@mipmap/ic_launcher"
-                android:layout_width="@dimen/currency_logo_dim"
-                android:layout_height="@dimen/currency_logo_dim"/>
+            android:id="@+id/logo"
+            android:layout_width="@dimen/currency_logo_dim"
+            android:layout_height="@dimen/currency_logo_dim"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:importantForAccessibility="no"
+            app:countryCode="@{currency.country}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@mipmap/ic_launcher" />
 
         <TextView
-                android:id="@+id/symbol"
-                android:layout_width="wrap_content"
-                app:layout_constraintStart_toEndOf="@+id/logo"
-                app:layout_constraintTop_toTopOf="@+id/logo"
-                app:layout_constraintBottom_toTopOf="@+id/name"
-                android:layout_marginStart="@dimen/activity_vertical_margin"
-                app:layout_constraintVertical_chainStyle="packed"
-                android:text="@{currency.symbol}"
-                tools:text="GBP"
-                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-                android:layout_height="wrap_content"/>
+            android:id="@+id/symbol"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/activity_vertical_margin"
+            android:text="@{currency.symbol}"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            app:layout_constraintBottom_toTopOf="@+id/name"
+            app:layout_constraintStart_toEndOf="@+id/logo"
+            app:layout_constraintTop_toTopOf="@+id/logo"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="GBP" />
 
         <TextView
-                android:id="@+id/name"
-                app:layout_constraintBottom_toBottomOf="@+id/logo"
-                app:layout_constraintTop_toBottomOf="@+id/symbol"
-                app:layout_constraintStart_toStartOf="@+id/symbol"
-                tools:text="British Pound"
-                android:text="@{currency.name}"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{currency.name}"
+            app:layout_constraintBottom_toBottomOf="@+id/logo"
+            app:layout_constraintStart_toStartOf="@+id/symbol"
+            app:layout_constraintTop_toBottomOf="@+id/symbol"
+            tools:text="British Pound" />
 
         <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/input_layout"
-                android:layout_width="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/logo"
-                app:layout_constraintBottom_toBottomOf="@+id/logo"
-                android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                android:layout_height="wrap_content">
+            android:id="@+id/input_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            app:layout_constraintBottom_toBottomOf="@+id/logo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintStart_toEndOf="@+id/name"
+            app:layout_constraintTop_toTopOf="@+id/logo">
 
             <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/rate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:inputType="numberDecimal"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-                    tools:text="2876,13"
-            />
+                android:id="@+id/rate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:maxLength="8"
+                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                app:double="@{currency.rate}"
+                tools:text="2876,13" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

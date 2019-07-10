@@ -4,7 +4,6 @@ import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import com.nagyrobi.core.model.CurrencyDTO
 import com.nagyrobi.core.model.Resource
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import java.text.NumberFormat
 import java.util.*
@@ -13,10 +12,11 @@ import javax.inject.Inject
 class CurrencyViewModel(currencyDataUseCase: CurrencyDataUseCase) : ViewModel() {
 
     private val countryCodes = mutableMapOf(
-        EURO_CURRENCY to EURO_COUNTRY,
-        *(NumberFormat.getAvailableLocales().map {
-            NumberFormat.getCurrencyInstance(it).currency?.currencyCode to it.country
-        }.filter { (currencyCode, _) -> currencyCode != EURO_CURRENCY }.toTypedArray())
+            EURO_CURRENCY to EURO_COUNTRY,
+            USD_CURRENCY to USD_COUNTRY,
+            *(NumberFormat.getAvailableLocales().map {
+                NumberFormat.getCurrencyInstance(it).currency?.currencyCode to it.country
+            }.filter { (currencyCode, _) -> currencyCode != EURO_CURRENCY && currencyCode != USD_CURRENCY }.toTypedArray())
     )
 
     private val _currencies = MutableLiveData<List<CurrencyItem>>()
@@ -45,7 +45,7 @@ class CurrencyViewModel(currencyDataUseCase: CurrencyDataUseCase) : ViewModel() 
     private val observer = Observer<CurrencyItem> {
         refreshDisposable?.dispose()
         refreshDisposable =
-            currencyDataUseCase.startRefresh(it.symbol).subscribe()
+                currencyDataUseCase.startRefresh(it.symbol).subscribe()
         rateInput.value = it.rate
         moveSelectedToTop()
     }
@@ -69,7 +69,7 @@ class CurrencyViewModel(currencyDataUseCase: CurrencyDataUseCase) : ViewModel() 
     }
 
     class Factory @Inject constructor(private val currencyDataUseCase: CurrencyDataUseCase) :
-        ViewModelProvider.Factory {
+            ViewModelProvider.Factory {
 
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(CurrencyViewModel::class.java)) {
@@ -83,29 +83,29 @@ class CurrencyViewModel(currencyDataUseCase: CurrencyDataUseCase) : ViewModel() 
 
     fun setCurrentLocale(locale: Locale) {
         selectedCurrency.value =
-            NumberFormat.getCurrencyInstance(locale).currency?.currencyCode?.let { currencyCode ->
-                CurrencyItem(
-                    currencyCode,
-                    DEFAULT_RATE_VALUE,
-                    countryCodes[currencyCode]
-                )
-            }
+                NumberFormat.getCurrencyInstance(locale).currency?.currencyCode?.let { currencyCode ->
+                    CurrencyItem(
+                            currencyCode,
+                            DEFAULT_RATE_VALUE,
+                            countryCodes[currencyCode]
+                    )
+                }
 
     }
 
     private fun mapCurrencies(newCurrencies: CurrencyDTO): List<CurrencyItem> {
         val currencies = mutableListOf(
-            CurrencyItem(
-                newCurrencies.base,
-                DEFAULT_RATE_VALUE,
-                countryCodes[newCurrencies.base]
-            )
+                CurrencyItem(
+                        newCurrencies.base,
+                        DEFAULT_RATE_VALUE,
+                        countryCodes[newCurrencies.base]
+                )
         )
         currencies.addAll(newCurrencies.rates.map { (currency, value) ->
             CurrencyItem(
-                currency,
-                value,
-                countryCodes[currency]
+                    currency,
+                    value,
+                    countryCodes[currency]
             )
         })
 
@@ -113,18 +113,18 @@ class CurrencyViewModel(currencyDataUseCase: CurrencyDataUseCase) : ViewModel() 
     }
 
     private fun List<CurrencyItem>.updateWithInputRate() =
-        map { item ->
-            if (selectedCurrency.value?.symbol == item.symbol) {
-                item
-            } else {
-                item.copy(rate = item.rate * (rateInput.value ?: DEFAULT_RATE_VALUE))
+            map { item ->
+                if (selectedCurrency.value?.symbol == item.symbol) {
+                    item.copy(rate = rateInput.value ?: DEFAULT_RATE_VALUE)
+                } else {
+                    item.copy(rate = item.rate * (rateInput.value ?: DEFAULT_RATE_VALUE))
+                }
             }
-        }
 
     private fun moveSelectedToTop() {
         val currentCurrencies = _currencies.value ?: return
         val newCurrencies =
-            mutableListOf(currentCurrencies.first { it.symbol == selectedCurrency.value?.symbol })
+                mutableListOf(currentCurrencies.first { it.symbol == selectedCurrency.value?.symbol })
 
         newCurrencies.addAll(currentCurrencies.filter { it.symbol != selectedCurrency.value?.symbol })
         _currencies.value = newCurrencies
@@ -133,12 +133,12 @@ class CurrencyViewModel(currencyDataUseCase: CurrencyDataUseCase) : ViewModel() 
     private fun updateCurrencies(newCurrencies: CurrencyDTO): List<CurrencyItem> {
         val currentCurrencies = _currencies.value ?: return emptyList()
         val currencies = mutableListOf(
-            currentCurrencies.first { it.symbol == newCurrencies.base }.copy(
-                rate = DEFAULT_RATE_VALUE
-            )
+                currentCurrencies.first { it.symbol == newCurrencies.base }.copy(
+                        rate = DEFAULT_RATE_VALUE
+                )
         )
         currencies.addAll(currentCurrencies.filterNot { it.symbol == newCurrencies.base }.map {
-            it.copy(rate = newCurrencies.rates[it.symbol] ?: 0.0)
+            it.copy(rate = newCurrencies.rates[it.symbol] ?: Double.NaN)
         })
 
         return currencies
@@ -151,6 +151,8 @@ class CurrencyViewModel(currencyDataUseCase: CurrencyDataUseCase) : ViewModel() 
     }
 
     companion object {
+        private const val USD_CURRENCY = "USD"
+        private const val USD_COUNTRY = "US"
         private const val EURO_CURRENCY = "EUR"
         private const val EURO_COUNTRY = "EU"
         private const val DEFAULT_RATE_VALUE = 1.0
