@@ -11,24 +11,23 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class CurrencyDataUseCase @Inject constructor(
-    private val currencyRepository: CurrencyRepository
+        private val currencyRepository: CurrencyRepository
 ) {
 
-    // todo Solve issue with flowables
     fun getStream(): Flowable<Resource<CurrencyDTO>> = currencyRepository.stream
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-
-    fun startRefresh(currencyCode: String): Flowable<Resource<CurrencyDTO>> =
-        currencyRepository.getCurrency(currencyCode).toFlowable()
-            .concatWith(
-                Flowable.interval(REFRESH_INTERVAL, TimeUnit.MILLISECONDS).startWith(1)
-                    .switchMap {
-                        currencyRepository.fetchCurrency(currencyCode).toFlowable()
-                    }
-            )
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+
+    fun startRefresh(currencyCode: String): Flowable<Resource<CurrencyDTO>> =
+            currencyRepository.getCurrency(currencyCode).toFlowable()
+                    .concatWith(
+                            Flowable.interval(REFRESH_INTERVAL, TimeUnit.MILLISECONDS).startWith(1)
+                                    .switchMap {
+                                        currencyRepository.fetchCurrency(currencyCode).toFlowable()
+                                    }
+                    )
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
 
 
     companion object {

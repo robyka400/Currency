@@ -11,8 +11,8 @@ import javax.inject.Singleton
 
 @Singleton
 internal class CurrencyRepositoryImpl @Inject constructor(
-    private val currencyMemorySource: CurrencyMemorySource,
-    private val currencyService: CurrencyService
+        private val currencyMemorySource: CurrencyMemorySource,
+        private val currencyService: CurrencyService
 ) : CurrencyRepository {
 
 
@@ -24,29 +24,30 @@ internal class CurrencyRepositoryImpl @Inject constructor(
     private val _stream = BehaviorProcessor.create<Resource<CurrencyDTO>>()
 
     override val stream: Flowable<Resource<CurrencyDTO>>
-        get() = _stream
+        get() = _stream.onBackpressureDrop()
+
 
     /**
      * If there is no cache fetch the currency
      *
      */
     override fun getCurrency(currencyCode: String): Single<Resource<CurrencyDTO>> =
-        currencyMemorySource.getCurrency(currencyCode)
-            .map { Resource.Success(it) as Resource<CurrencyDTO> }
-            .onErrorResumeNext(fetchCurrency(currencyCode))
+            currencyMemorySource.getCurrency(currencyCode)
+                    .map { Resource.Success(it) as Resource<CurrencyDTO> }
+                    .onErrorResumeNext(fetchCurrency(currencyCode))
 
     /**
      * If the request is successful we cache the new currency
      */
     override fun fetchCurrency(currencyCode: String): Single<Resource<CurrencyDTO>> =
-        currencyService.getCurrency(currencyCode)
-            .map { Resource.Success(it) as Resource<CurrencyDTO> }
-            .onErrorResumeNext { Single.just(Resource.Error(it)) }
-            .doOnSuccess {
-                _stream.onNext(it)
-                if (it is Resource.Success) {
-                    currencyMemorySource.cache(it.data)
-                }
-            }
+            currencyService.getCurrency(currencyCode)
+                    .map { Resource.Success(it) as Resource<CurrencyDTO> }
+                    .onErrorResumeNext { Single.just(Resource.Error(it)) }
+                    .doOnSuccess {
+                        _stream.onNext(it)
+                        if (it is Resource.Success) {
+                            currencyMemorySource.cache(it.data)
+                        }
+                    }
 
 }

@@ -9,7 +9,6 @@ import retrofit2.create
 
 /**
  * Module providing the RetrofitService implementation.
- * todo
  */
 @Module(includes = [NetworkModule::class])
 internal class ApiModule {
